@@ -1,0 +1,8 @@
+
+
+fastapi==0.104.1 - Современный веб-фреймворк
+uvicorn==0.24.0 - ASGI-сервер для FastAPI
+sqlalchemy==2.0.23 - ORM для работы с БД
+psycopg2-binary==2.9.9 - PostgreSQL адаптер
+chromadb==0.4.15 - Клиент для векторной БД
+sentence-transformers==2.2.2 - Модели для эмбеддингов

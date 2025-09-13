@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: "production_db"
+      POSTGRES_USER: "user"
+      POSTGRES_PASSWORD: "password"
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres_data:/var/lib/postgresql/data
+
+  chromadb:
+    image: chromadb/chroma:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+
+  rag_api:
+    build: ./backend
+    ports:
+      - "8001:8000"
+    depends_on:
+      - postgres
+      - chromadb
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/production_db
+      - CHROMA_URL=http://chromadb:8000
+
+  app:
+    build: ./frontend
+    ports:
+      - "8501:8501"
+    depends_on:
+      - rag_api
+    environment:
+      - RAG_API_URL=http://rag_api:8000
+
+volumes:
+  postgres_data:
+  chroma_data:
