@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:13
+    image: postgres:13-alpine
     environment:
       POSTGRES_DB: "production_db"
       POSTGRES_USER: "user"
@@ -21,7 +21,9 @@ services:
       - chroma_data:/chroma/chroma
 
   rag_api:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.yml
     ports:
       - "8001:8000"
     depends_on:
@@ -32,7 +34,9 @@ services:
       - CHROMA_URL=http://chromadb:8000
 
   app:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.yml
     ports:
       - "8501:8501"
     depends_on:
@@ -40,6 +44,19 @@ services:
     environment:
       - RAG_API_URL=http://rag_api:8000
 
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_NUM_PARALLEL=1  # Ограничиваем параллелизм
+      - OLLAMA_MAX_LOADED_MODELS=1
+
+
 volumes:
   postgres_data:
   chroma_data:
+  ollama_data:
